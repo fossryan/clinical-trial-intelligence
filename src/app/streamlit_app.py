@@ -100,7 +100,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     """Load the ClinicalTrials.gov processed data (public benchmark)"""
-    data_dir = Path(__file__).parent.parent / 'data' / 'processed'
+    data_dir = Path(__file__).parent.parent.parent / 'data' / 'processed'
     feature_files = list(data_dir.glob('clinical_trials_features_*.csv'))
     if not feature_files:
         return None
@@ -112,7 +112,7 @@ def load_data():
 @st.cache_resource
 def load_models():
     """Load trained XGBoost + LightGBM + feature list"""
-    model_dir = Path(__file__).parent.parent / 'data' / 'models'
+    model_dir = Path(__file__).parent.parent.parent / 'data' / 'models'
     try:
         xgb_files  = list(model_dir.glob('xgboost_*.joblib'))
         lgb_files  = list(model_dir.glob('lightgbm_*.joblib'))
@@ -906,7 +906,7 @@ def main():
         st.markdown("Our predictive models achieve **78%+ accuracy** identifying high-risk trials 18 months before completion.")
 
         # metrics table
-        model_dir = Path(__file__).parent.parent / 'data' / 'models'
+        model_dir = Path(__file__).parent.parent.parent / 'data' / 'models'
         metrics_files = list(model_dir.glob('metrics_*.json'))
         if metrics_files:
             with open(max(metrics_files, key=lambda p: p.stat().st_mtime), 'r') as f:
