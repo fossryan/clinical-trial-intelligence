@@ -1,84 +1,55 @@
 @echo off
-REM Clinical Trial Intelligence - One-Click Setup (Windows)
+REM Clinical Trial Intelligence - Quick Start (Windows)
+REM This script runs the complete pipeline and launches the app
 
 echo.
-echo Clinical Trial Risk Intelligence Platform
-echo ===========================================
+echo ================================================================================
+echo CLINICAL TRIAL INTELLIGENCE - QUICK START
+echo ================================================================================
 echo.
-echo This script will:
-echo   1. Create virtual environment
-echo   2. Install all dependencies
-echo   3. Collect clinical trial data (5-10 min)
-echo   4. Engineer features
-echo   5. Train ML models
-echo   6. Launch dashboard
-echo.
-pause
 
-REM Check Python
-echo.
-echo Checking Python version...
-python --version
+REM Check if Python is installed
+python --version >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: Python not found. Please install Python 3.11+
+    pause
+    exit /b 1
+)
 
-REM Create virtual environment
-echo.
-echo Creating virtual environment...
-python -m venv venv
-echo Virtual environment created
+echo [1/4] Installing dependencies...
+pip install -r requirements.txt
+if errorlevel 1 (
+    echo ERROR: Failed to install dependencies
+    pause
+    exit /b 1
+)
 
-REM Activate virtual environment
 echo.
-echo Activating virtual environment...
-call venv\Scripts\activate
+echo [2/4] Running data pipeline (this may take 15-20 minutes)...
+echo       - Collecting clinical trial data
+echo       - Engineering features
+echo       - Training ML models
+python run_pipeline.py
+if errorlevel 1 (
+    echo ERROR: Pipeline failed
+    pause
+    exit /b 1
+)
 
-REM Upgrade pip
 echo.
-echo Upgrading pip...
-python -m pip install --quiet --upgrade pip
+echo [3/4] Pipeline complete! Generated files:
+dir /s /b data\models\*.joblib
+dir /s /b data\processed\*.csv
 
-REM Install dependencies
 echo.
-echo Installing dependencies (this may take 2-3 minutes)...
-pip install --quiet -r requirements.txt
-echo Dependencies installed
+echo [4/4] Launching Streamlit app...
+echo.
+echo ================================================================================
+echo App will open in your browser at http://localhost:8501
+echo Press Ctrl+C to stop the server
+echo ================================================================================
+echo.
 
-REM Create data directories
-echo.
-echo Creating data directories...
-if not exist "data\raw" mkdir data\raw
-if not exist "data\processed" mkdir data\processed
-if not exist "data\models" mkdir data\models
-echo Directories created
+streamlit run src\app\streamlit_app.py
 
-REM Collect data
-echo.
-echo Collecting clinical trial data from ClinicalTrials.gov...
-echo This will take 5-10 minutes (collecting 2,000 trials)...
-python src\data_collection\collect_trials.py
-
-REM Engineer features
-echo.
-echo Engineering features...
-python src\features\engineer_features.py
-
-REM Train models
-echo.
-echo Training machine learning models...
-echo This will take 3-5 minutes...
-python src\models\train_models.py
-
-REM Success message
-echo.
-echo ==============================================
-echo Setup Complete!
-echo ==============================================
-echo.
-echo To launch the dashboard, run:
-echo.
-echo    venv\Scripts\activate
-echo    streamlit run src\app\streamlit_app.py
-echo.
-echo The dashboard will open at: http://localhost:8501
-echo.
-echo ==============================================
 pause
